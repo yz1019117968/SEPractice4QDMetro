@@ -16,18 +16,24 @@ TGT_LANGUAGE = 'en'
 token_transform = {}
 vocab_transform = {}
 
+# 分别返回一个分词器，一个德文，一个英文
 token_transform[SRC_LANGUAGE] = get_tokenizer('spacy', language='de_core_news_sm')
 token_transform[TGT_LANGUAGE] = get_tokenizer('spacy', language='en_core_web_sm')
 
+# for key in token_transform:
+#     print(f"key: {key}, value: {token_transform[key]}")
+# assert False
+
 # helper function to yield list of tokens
 def yield_tokens(data_iter: Iterable, language: str) -> List[str]:
+    # 由于需要对样本按语言重新整合，且分词，于是重新构造一个iterable对象
+    # language_index = {'de':0, 'en':1}
     language_index = {SRC_LANGUAGE: 0, TGT_LANGUAGE: 1}
-    # count = 0
     for data_sample in data_iter:
         # ('Zwei junge weiße Männer sind im Freien in der Nähe vieler Büsche.', 'Two young, White males are outside near many bushes.')
-        # count += 1
+        # ['Zwei', 'junge', 'weiße', 'Männer', 'sind', 'im', 'Freien', 'in', 'der', 'Nähe', 'vieler', 'Büsche', '.']
+        # 为相应的样本分词
         yield token_transform[language](data_sample[language_index[language]])
-    # print("count : ", count)
 
 # Define special symbols and indices
 UNK_IDX, PAD_IDX, BOS_IDX, EOS_IDX = 0, 1, 2, 3
@@ -41,6 +47,7 @@ for ln in [SRC_LANGUAGE, TGT_LANGUAGE]:
     vocab_transform[ln] = build_vocab_from_iterator(yield_tokens(train_iter, ln),
                                                     min_freq=1,
                                                     specials=special_symbols,
+                                                    # 表示是否将specials放到字典的最前面，默认是True
                                                     special_first=True)
 
 # Set ``UNK_IDX`` as the default index. This index is returned when the token is not found.
