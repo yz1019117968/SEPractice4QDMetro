@@ -25,6 +25,8 @@ def train(epoch):
     target = target.to(device)
     optimizer.zero_grad() #梯度清零
     output = network(data) #前馈输出
+    # output: [64, 10] [batch_size, class]
+    # target: [64] [batch_size]
     loss = F.nll_loss(output, target)
     loss.backward()
     optimizer.step()
@@ -37,6 +39,11 @@ def train(epoch):
       # 统计第n个batch的累计样本量，用于为train loss找横坐标
       train_counter.append(
         (batch_idx*64) + ((epoch-1)*len(train_loader.dataset)))
+      # for i in network.state_dict():
+      #   print(f"{i}: {network.state_dict()[i]}")
+      # assert False
+      # 以OrderedDict存储模型参数，可通过字典的方式遍历
+      # 在此仅保存模型参数，加载时需要实例化模型
       torch.save(network.state_dict(), './model.pth')
       torch.save(optimizer.state_dict(), './optimizer.pth')
 
@@ -54,6 +61,10 @@ def eval():
       test_loss += F.nll_loss(output, target, size_average=False).item()
       # 去除grad，在第1个维度上求最大值，并返回最大值的索引
       pred = output.data.max(1, keepdim=True)[1]
+      # target: [1000] pred: [1000, 1]
+      # target.data.view_as(pred): 使target规格与pred一致
+      # pred.eq(): 相等为True不等为False
+      # tensor.sum()：对tensor中元素求和，true为1，false为0
       correct += pred.eq(target.data.view_as(pred)).sum()
   test_loss /= len(test_loader.dataset)
   # 按epoch记录test loss

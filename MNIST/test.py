@@ -48,3 +48,10 @@ stu = Student1("a", 30)
 stu.print_score()
 sum_n(5)
 print_n(5)
+
+
+import torch
+
+pred = torch.tensor([[1],[2],[3],[4],[5]])
+label = torch.tensor([[1],[3],[4],[5],[6]])
+print(pred.eq(label).sum())

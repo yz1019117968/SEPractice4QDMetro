@@ -6,7 +6,9 @@ torch.manual_seed(random_seed)
 
 # Normalize()转换使用的值0.1307和0.3081是MNIST数据集的全局平均值和标准偏差
 train_loader = torch.utils.data.DataLoader(
+    # 继承子Dataset
     torchvision.datasets.MNIST('./data/', train=True, download=True,
+                               # 这个类的主要作用是串联多个图片变换的操作。
                                transform=torchvision.transforms.Compose([
                                    torchvision.transforms.ToTensor(),
                                    torchvision.transforms.Normalize(
